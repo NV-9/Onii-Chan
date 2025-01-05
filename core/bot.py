@@ -1,3 +1,4 @@
+from datetime import datetime
 from discord.ext import commands
 from discord import Intents
 import logging
@@ -9,6 +10,7 @@ class Bot(commands.Bot):
 
     token: str
     logger: logging.Logger
+    start_time: datetime
 
     def __init__(self, **kwargs):
         """
@@ -19,6 +21,7 @@ class Bot(commands.Bot):
         self.token = BOT_TOKEN
 
         self.logger = self._setup_logger(LOG_FILE)
+        self.start_time = datetime.now()
         
         super().__init__(
             case_insensitive = True,
@@ -59,15 +62,27 @@ class Bot(commands.Bot):
             raise FileNotFoundError('No cogs directory found')
 
         self.logger.info('Loading cogs...')
-        for cog in COGS_DIR.glob('*.py'):
-            try:
-                await self.load_extension(f'cogs.{cog.stem}')
-                self.logger.info(f'Loaded cog: {cog.stem}')
-            except Exception as e:
-                self.logger.error(f'Failed to load cog {cog.stem}: {e}')
-        
+        await self.reload_all_extensions()
+
         self.logger.info('Starting the bot...')
         await super().start(self.token, *args, **kwargs)
+    
+    async def reload_all_extensions(self):
+        """
+        Reloads all the extensions
+        """
+        for cog in COGS_DIR.glob('*.py'):
+            try:
+                await self.reload_extension(f'cogs.{cog.stem}')
+                self.logger.info(f'Reloaded cog: {cog.stem}')
+            except commands.ExtensionNotLoaded:
+                try:
+                    await self.load_extension(f'cogs.{cog.stem}')
+                    self.logger.info(f'Loaded cog: {cog.stem}')
+                except Exception as e:
+                    self.logger.error(f'Failed to load cog {cog.stem}: {e}')
+            except Exception as e:
+                self.logger.error(f'Failed to load cog {cog.stem}: {e}')
 
     async def on_ready(self):
         """
