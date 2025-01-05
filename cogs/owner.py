@@ -14,7 +14,19 @@ class Owner(commands.Cog, CustomCogMixin):
         Shutdown the bot
         """
         self.bot.logger.info('Shutting down from user command...')
+        await context.message.delete()
         await self.bot.close()
+        
+    
+    @commands.command(name = 'reload', help = 'Reloads all cogs')
+    async def _reload(self, context: commands.Context):
+        """
+        Reload all cogs
+        """
+        self.bot.logger.info('Reloading cogs...')
+        await self.bot.reload_all_extensions()
+        await context.send('All cogs reloaded!', delete_after = 30)
+        await context.message.delete(delay = 30)
 
 
 async def setup(bot: Bot):
