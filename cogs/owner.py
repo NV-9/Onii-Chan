@@ -28,6 +28,21 @@ class Owner(commands.Cog, CustomCogMixin):
         await context.send('All cogs reloaded!', delete_after = 30)
         await context.message.delete(delay = 30)
 
+    @commands.command(name = 'kickall', help = 'Kicks all members from current voice channel')
+    async def _kickall(self, context: commands.Context):
+        """
+        Kicks all members from the current voice channel
+        """
+        await context.message.delete(delay = 30)
+
+        if context.author.voice is None:
+            return await context.send('You must be in a voice channel to use this command!', delete_after = 30)
+
+        voice_channel = context.author.voice.channel
+        for member in voice_channel.members:
+            await member.move_to(None)
+        await context.send('All members have been kicked from the voice channel!', delete_after = 5)
+
 
 async def setup(bot: Bot):
     await bot.add_cog(Owner(bot))
