@@ -1,9 +1,11 @@
 from discord.ext import commands
 
+from core.bot import Bot
+
 class CustomCogMixin:
 
-    def __init__(self, bot: commands.Bot, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, bot: Bot):
+        super().__init__()
         self.bot = bot
     
     @commands.Cog.listener()
