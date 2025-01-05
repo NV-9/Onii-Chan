@@ -4,6 +4,7 @@ from discord import Intents
 import logging
 
 from config.settings import BOT_TOKEN, COGS_DIR, LOG_FILE
+from core.help import Help
 from core.prefix import get_prefix
 
 class Bot(commands.Bot):
@@ -27,6 +28,7 @@ class Bot(commands.Bot):
             case_insensitive = True,
             command_prefix = get_prefix,
             heartbeat_timeout = 150.0,
+            help_command = Help(),
             intents = Intents.all(),
             **kwargs,
         )
