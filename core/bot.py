@@ -1,12 +1,14 @@
 from discord.ext import commands
 from discord import Intents
+import logging
 
-from config.settings import BOT_TOKEN
+from config.settings import BOT_TOKEN, COGS_DIR, LOG_FILE
 from core.prefix import get_prefix
 
 class Bot(commands.Bot):
 
     token: str
+    logger: logging.Logger
 
     def __init__(self, **kwargs):
         """
@@ -15,6 +17,8 @@ class Bot(commands.Bot):
         if not BOT_TOKEN:
             raise ValueError('No bot token provided')
         self.token = BOT_TOKEN
+
+        self.logger = self._setup_logger(LOG_FILE)
         
         super().__init__(
             case_insensitive = True,
@@ -23,16 +27,51 @@ class Bot(commands.Bot):
             intents = Intents.all(),
             **kwargs,
         )
-
-    def run(self, *args, **kwargs):
-        """
-        Run the bot
-        """
-        super().run(self.token, *args, **kwargs)
     
+    def _setup_logger(self, log_file: str) -> logging.Logger:
+        """
+        Sets up the logger for the bot.
+        """
+        logger = logging.getLogger('bot')
+        logger.setLevel(logging.DEBUG)
+
+        file_handler = logging.FileHandler(log_file, encoding='utf-8')
+        file_handler.setLevel(logging.INFO)
+        file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(file_formatter)
+
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.DEBUG)
+        console_formatter = logging.Formatter('%(levelname)s: %(message)s')
+        console_handler.setFormatter(console_formatter)
+
+        logger.addHandler(file_handler)
+        logger.addHandler(console_handler)
+
+        return logger
+    
+    async def start(self, *args, **kwargs):
+        """
+        Start the bot
+        """
+        if not COGS_DIR.exists():
+            self.logger.error('No cogs directory found')
+            raise FileNotFoundError('No cogs directory found')
+
+        self.logger.info('Loading cogs...')
+        for cog in COGS_DIR.glob('*.py'):
+            try:
+                await self.load_extension(f'cogs.{cog.stem}')
+                self.logger.info(f'Loaded cog: {cog.stem}')
+            except Exception as e:
+                self.logger.error(f'Failed to load cog {cog.stem}: {e}')
+        
+        self.logger.info('Starting the bot...')
+        await super().start(self.token, *args, **kwargs)
+
     async def on_ready(self):
         """
         On bot ready event
         """
-        print(f'{self.user.name} is online! ')
+        self.logger.info(f'{self.user.name} is online!')
 
