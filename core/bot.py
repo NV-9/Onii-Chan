@@ -3,9 +3,11 @@ from discord.ext import commands
 from discord import Intents
 import logging
 
-from config.settings import BOT_TOKEN, COGS_DIR, LOG_FILE
+from config.settings import BOT_TOKEN, COGS_DIR, DATA_DIR, LOGS_DIR, LOG_FILE
 from core.help import Help
 from core.prefix import get_prefix
+
+__all__ = ['Bot']
 
 class Bot(commands.Bot):
 
@@ -20,6 +22,8 @@ class Bot(commands.Bot):
         if not BOT_TOKEN:
             raise ValueError('No bot token provided')
         self.token = BOT_TOKEN
+
+        self._ensure_paths_exist()
 
         self.logger = self._setup_logger(LOG_FILE)
         self.start_time = datetime.now()
@@ -54,7 +58,16 @@ class Bot(commands.Bot):
         logger.addHandler(console_handler)
 
         return logger
-    
+
+    def _ensure_paths_exist(self):
+        """
+        Ensures that the log and data directories exist
+        """
+        if not LOGS_DIR.exists():
+            LOGS_DIR.mkdir(parents = True)
+        if not DATA_DIR.exists():
+            DATA_DIR.mkdir(parents = True)
+        
     async def start(self, *args, **kwargs):
         """
         Start the bot
