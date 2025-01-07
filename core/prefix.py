@@ -3,6 +3,7 @@ from discord import Message
 
 from config.settings import COMMAND_PREFIX
 
+__all__ = ['get_prefix']
 
 async def get_prefix(bot: commands.Bot, message: Message):
     """
