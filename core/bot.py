@@ -3,7 +3,8 @@ from discord.ext import commands
 from discord import Intents
 import logging
 
-from config.settings import BOT_TOKEN, COGS_DIR, DATA_DIR, LOGS_DIR, LOG_FILE
+from config.settings import BOT_TOKEN, COGS_DIR, DATA_DIR, LOGS_DIR, LOG_FILE, WATCH_FILE
+from core.handler import JSONHandler
 from core.help import Help
 from core.prefix import get_prefix
 
@@ -75,12 +76,21 @@ class Bot(commands.Bot):
         if not COGS_DIR.exists():
             self.logger.error('No cogs directory found')
             raise FileNotFoundError('No cogs directory found')
+        
+        self.logger.info('Loading data...')
+        await self.load_all_data()
 
         self.logger.info('Loading cogs...')
         await self.reload_all_extensions()
 
         self.logger.info('Starting the bot...')
         await super().start(self.token, *args, **kwargs)
+
+    async def load_all_data(self):
+        """
+        Load all the data
+        """
+        self._overwatch_handler = JSONHandler(WATCH_FILE, default_data={'Guilds': {}})
     
     async def reload_all_extensions(self):
         """
@@ -105,3 +115,10 @@ class Bot(commands.Bot):
         """
         self.logger.info(f'{self.user.name} is online!')
 
+    async def on_command_error(self, context: commands.Context, exception: commands.CommandError):
+        """
+        Handle errors in command execution.
+        """
+        self.logger.error(f"An error occurred while processing the command '{context.command}': {exception}", exc_info=True)
+        if self.is_owner(context.author):
+            await context.send(f"An error occurred: {exception}")
