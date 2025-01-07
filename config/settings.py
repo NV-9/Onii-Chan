@@ -12,3 +12,6 @@ LOGS_DIR = BASE_DIR / 'logs'
 
 # Logging
 LOG_FILE = LOGS_DIR / 'bot.log'
+
+# Data Files
+DATA_DIR = BASE_DIR / 'data'
