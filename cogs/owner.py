@@ -3,7 +3,7 @@ from discord.ext import commands
 from core.bot import Bot
 from core.cog import CustomCogMixin
 
-class Owner(commands.Cog, CustomCogMixin):
+class Owner(commands.Cog, CustomCogMixin, command_attrs=dict(hidden=True)):
 
     async def cog_check(self, context: commands.Context):
         return await self.bot.is_owner(context.author)
@@ -16,16 +16,16 @@ class Owner(commands.Cog, CustomCogMixin):
         self.bot.logger.info('Shutting down from user command...')
         await context.message.delete()
         await self.bot.close()
-        
     
     @commands.command(name = 'reload', help = 'Reloads all cogs')
     async def _reload(self, context: commands.Context):
         """
-        Reload all cogs
+        Reload all cogs and data
         """
         self.bot.logger.info('Reloading cogs...')
+        await self.bot.load_all_data()
         await self.bot.reload_all_extensions()
-        await context.send('All cogs reloaded!', delete_after = 30)
+        await context.send('All data and cogs reloaded!', delete_after = 30)
         await context.message.delete(delay = 30)
 
     @commands.command(name = 'kickall', help = 'Kicks all members from current voice channel')
