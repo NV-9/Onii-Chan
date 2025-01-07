@@ -19,7 +19,7 @@ The bot code will be updated from time to time to showcase different use cases w
 - [x] Moderation  
 - [x] Logging  
 - [x] Auto-Restart (through Docker)  
-- [ ] Server Monitoring  
+- [x] Server Monitoring  
 - [ ] API Status Updates  
 - [ ] Webhooks
 ---
