@@ -1,6 +1,7 @@
 from datetime import datetime
 from discord.ext import commands
-from discord import Intents
+from discord.utils import oauth_url
+from discord import Intents, Permissions
 import logging
 
 from config.settings import BOT_TOKEN, COGS_DIR, DATA_DIR, LOGS_DIR, LOG_FILE, WATCH_FILE
@@ -113,6 +114,10 @@ class Bot(commands.Bot):
         """
         On bot ready event
         """
+        self.logger.info('Generating invite URL...')
+        self.client_id = (await self.application_info()).id
+        self.invite_url = oauth_url(client_id = self.client_id, permissions = Permissions(administrator=True))
+
         self.logger.info(f'{self.user.name} is online!')
 
     async def on_command_error(self, context: commands.Context, exception: commands.CommandError):

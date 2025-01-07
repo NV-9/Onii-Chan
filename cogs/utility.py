@@ -56,6 +56,10 @@ class Utility(commands.Cog, CustomCogMixin):
             pass
         await context.send(embed = embed, delete_after = 30)
 
+    @commands.command(name = 'invite', help ='Provides invite link to invite me! ')
+    async def _invite(self, context: commands.Context, *args):
+        embed = Embed(title = '✉️Invite✉️', description = f'[Invite me]({self.bot.invite_url})')
+        await context.send(embed = embed)
 
 async def setup(bot: Bot):
     await bot.add_cog(Utility(bot))
