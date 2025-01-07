@@ -34,16 +34,17 @@ class Moderation(commands.Cog, CustomCogMixin):
     @commands.command(name = 'purge', aliases = ['clear', 'prune'], help = 'Deletes specified number of messages by specified users! If no users are specified, it deletes any message. Default value is 100!', brief = 'Manage Messages')
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
-    async def _purge(self, context: commands.Context, messages: typing.Optional[int] = 100, params: commands.Greedy[typing.Union[discord.Member, discord.Role]] = None, exclude_pins: typing.Optional[bool] = False, reverse: typing.Optional[bool] = False, *args):
+    async def _purge(self, context: commands.Context, messages: typing.Optional[int] = 100, params: commands.Greedy[typing.Union[discord.Member, discord.Role]] = None, exclude_pins: typing.Optional[bool] = False, *args):
         if messages > 1000:
             await context.send('You can only delete 1000 messages at a time!')
             return
         if params is None:
-            await context.channel.purge(limit = messages, check = lambda message: not message.pinned if exclude_pins else True, before = context.message if reverse else None, after = context.message if not reverse else None)
+            values = await context.channel.purge(limit = messages, check = lambda message: not message.pinned if exclude_pins else True, bulk = True)
+            await context.send(f'{len(values)} messages have been deleted!', delete_after = 5)
         else:
             def check(message):
                 return message.author in params
-            await context.channel.purge(limit = messages, check = lambda message: check(message) and (not message.pinned if exclude_pins else True), before = context.message if reverse else None, after = context.message if not reverse else None)
+            await context.channel.purge(limit = messages, check = lambda message: check(message) and (not message.pinned if exclude_pins else True), bulk = True)
 
     @commands.command(name = 'nick', aliases = ['nickname'], description = 'Changes the nickname of a user')
     @commands.has_permissions(manage_nicknames=True)
