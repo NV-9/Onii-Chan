@@ -2,6 +2,8 @@ from discord.ext import commands
 
 from core.bot import Bot
 
+__all__ = ['CustomCogMixin']
+
 class CustomCogMixin:
 
     def __init__(self, bot: Bot):
