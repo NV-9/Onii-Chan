@@ -9,9 +9,10 @@ BOT_TOKEN = config('DISCORD_BOT_TOKEN')
 BASE_DIR = Path(__file__).resolve().parent.parent
 COGS_DIR = BASE_DIR / 'cogs'
 LOGS_DIR = BASE_DIR / 'logs'
+DATA_DIR = BASE_DIR / 'data'
 
 # Logging
 LOG_FILE = LOGS_DIR / 'bot.log'
 
-# Data Files
-DATA_DIR = BASE_DIR / 'data'
+# Data
+WATCH_FILE = DATA_DIR / 'overwatch.json'
